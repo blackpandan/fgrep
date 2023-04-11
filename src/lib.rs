@@ -24,6 +24,16 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     result
 }
 
+pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut result: Vec<&str> = vec![];
+    for line in contents.lines() {
+        if line.contains(query) {
+            result.push(line);
+        }
+    }
+    result
+}
+
 pub struct Config {
     pub query: String,
     pub file_path: String,
@@ -47,14 +57,45 @@ mod tests {
     use super::*;
 
     #[test]
-    fn one_result() {
-        let query: &str = "hello";
+    fn search_normal() {
+        let query: &str = "star";
         let content: &str = "\
-        hello to the world
-        the star is not a moon
-        but the sun is a star
+Hello to the world
+the star is not a moon
+but the sun is a star
                              ";
 
-        assert_eq!(vec!["hello to the world"], search(query, content));
+        assert_eq!(
+            vec!["the star is not a moon", "but the sun is a star"],
+            search(query, content)
+        );
+    }
+
+    #[test]
+    fn search_insensitive() {
+        let query: &str = "hello";
+        let content: &str = "\
+Hello to the world
+the star is not a moon
+but the sun is a star
+                             ";
+
+        assert_eq!(
+            vec!["Hello to the world"],
+            search_case_insensitive(query, content)
+        );
+    }
+
+    #[test]
+    fn search_sensitive() {
+        let query: &str = "hello";
+        let content: &str = "\
+Hello to the world
+the star is not a moon
+but the sun is a star
+                             ";
+
+        let result: Vec<&str> = Vec::new();
+        assert_eq!(result, search(query, content));
     }
 }
