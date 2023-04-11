@@ -4,9 +4,24 @@ use std::fs;
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents: String = fs::read_to_string(&config.file_path)?;
 
-    println!("\n{contents}",);
+    let result = search(&config.query, &contents);
+
+    println!("Results: \n");
+    for line in result {
+        println!("{}", line);
+    }
 
     Ok(())
+}
+
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut result: Vec<&str> = vec![];
+    for line in contents.lines() {
+        if line.contains(query) {
+            result.push(line);
+        }
+    }
+    result
 }
 
 pub struct Config {
@@ -24,5 +39,22 @@ impl Config {
         let file_path: String = args[2].clone();
 
         Ok(Self { query, file_path })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn one_result() {
+        let query: &str = "hello";
+        let content: &str = "\
+        hello to the world
+        the star is not a moon
+        but the sun is a star
+                             ";
+
+        assert_eq!(vec!["hello to the world"], search(query, content));
     }
 }
