@@ -1,10 +1,17 @@
+use std::env;
 use std::error::Error;
 use std::fs;
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents: String = fs::read_to_string(&config.file_path)?;
 
-    let result = search(&config.query, &contents);
+    let result: Vec<&str>;
+
+    if config.insensitive == true {
+        result = search_case_insensitive(&config.query, &contents);
+    } else {
+        result = search(&config.query, &contents);
+    }
 
     println!("Results: \n");
     for line in result {
@@ -38,6 +45,7 @@ pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a st
 pub struct Config {
     pub query: String,
     pub file_path: String,
+    pub insensitive: bool,
 }
 
 impl Config {
@@ -46,10 +54,18 @@ impl Config {
             return Err("Not enough Arguments");
         }
 
+        let mut insensitive: bool = false;
         let query: String = args[1].clone();
         let file_path: String = args[2].clone();
+        if env::var("INSENSITIVE_CASE").is_ok() {
+            insensitive = true;
+        }
 
-        Ok(Self { query, file_path })
+        Ok(Self {
+            query,
+            file_path,
+            insensitive,
+        })
     }
 }
 
