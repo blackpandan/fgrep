@@ -6,7 +6,7 @@ fn main() {
     let arguments: Vec<String> = env::args().collect();
 
     let config = Config::build(&arguments).unwrap_or_else(|err| {
-        println!("{}", err);
+        eprintln!("{}", err);
         process::exit(1);
     });
 
@@ -14,7 +14,7 @@ fn main() {
     println!("in {}\n", &config.file_path);
 
     if let Err(err) = fgrep::run(config) {
-        println!("{}", err);
+        eprintln!("{}", err);
         process::exit(1);
     };
 }
